@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en" data-view="powershell">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="google-site-verification" content="SqLadjRt3GQPCgWDllX73IX-BNpmzgDQCgDhgvWqRtU">
+<title>Ishan Bojja</title>
+<meta name="description" content="Bioinformatics and machine learning projects, science fair awards, and teaching work by Ishan Bojja.">
+<script>
+  // Set the view before first paint so a saved choice doesn't flash.
+  (function () {
+    var views = ["powershell", "bash", "plain"];
+    var v = location.hash.slice(1);
+    if (views.indexOf(v) === -1) {
+      try { v = localStorage.getItem("view"); } catch (e) { v = null; }
+    }
+    if (views.indexOf(v) !== -1) document.documentElement.setAttribute("data-view", v);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&family=Ubuntu:wght@500&display=swap">
+<style>
+  * { box-sizing: border-box; }
+
+  html[data-view="powershell"] {
+    color-scheme: dark;
+    --page: #1b1d22;
+    --ui: #e4e4e4;
+    --ui-dim: #8d9099;
+    --bg: #012456;
+    --fg: #eeedf0;
+    --cmd: #f9f1a5;
+    --dim: #9a9a9a;
+    --str: #3a96dd;
+    --mono: Consolas, "Cascadia Mono", Menlo, "DejaVu Sans Mono", monospace;
+    --size: 15px;
+    --lh: 1.4;
+    --width: 860px;
+  }
+
+  html[data-view="bash"] {
+    color-scheme: dark;
+    --page: #1b1b1b;
+    --ui: #e4e4e4;
+    --ui-dim: #8d8d8d;
+    --bg: #300a24;
+    --fg: #ffffff;
+    --green: #8ae234;
+    --blue: #729fcf;
+    --jq-str: #4e9a06;
+    --mono: "Ubuntu Mono", "DejaVu Sans Mono", monospace;
+    --size: 17px;
+    --lh: 1.3;
+    --width: 860px;
+  }
+
+  html[data-view="plain"] {
+    color-scheme: light;
+    --page: #fbfbf8;
+    --ui: #1a1a1a;
+    --ui-dim: #6b6b6b;
+    --fg: #1a1a1a;
+    --dim: #6b6b6b;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
+    --size: 15px;
+    --lh: 1.55;
+    --width: 680px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    html[data-view="plain"] {
+      color-scheme: dark;
+      --page: #121212;
+      --ui: #e6e6e6;
+      --ui-dim: #949494;
+      --fg: #e6e6e6;
+      --dim: #949494;
+    }
+  }
+
+  body {
+    margin: 0;
+    padding: 20px 16px 64px;
+    background: var(--page);
+    color: var(--fg);
+    font-family: var(--mono);
+    font-size: var(--size);
+    line-height: var(--lh);
+  }
+
+  a {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    margin: -1px; padding: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* view switcher */
+
+  .views {
+    max-width: var(--width);
+    margin: 0 auto 10px;
+    display: flex;
+    justify-content: flex-end;
+    font-size: 13px;
+    line-height: 1;
+  }
+  .views button {
+    font: inherit;
+    color: var(--ui-dim);
+    background: none;
+    border: 0;
+    padding: 6px 3px;
+    cursor: pointer;
+  }
+  .views button::before { content: "["; content: "[" / ""; visibility: hidden; }
+  .views button::after  { content: "]"; content: "]" / ""; visibility: hidden; }
+  .views button[aria-pressed="true"],
+  .views button:hover { color: var(--ui); }
+  .views button[aria-pressed="true"]::before,
+  .views button[aria-pressed="true"]::after { visibility: visible; }
+  .views button:focus-visible { outline: 1px solid var(--ui); outline-offset: 2px; }
+
+  /* window */
+
+  html[data-view="plain"] .win,
+  html:not([data-view="plain"]) .plain { display: none; }
+
+  .win {
+    max-width: var(--width);
+    margin: 0 auto;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+
+  .bar { display: flex; align-items: center; user-select: none; }
+  .bar .title { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .bar .btns { display: flex; }
+  .bar .btn { display: grid; place-items: center; }
+  .bar svg { display: block; }
+
+  html[data-view="powershell"] .win { border: 1px solid #3a3a3a; }
+  html[data-view="powershell"] .bar {
+    height: 32px;
+    gap: 8px;
+    padding-left: 10px;
+    background: #fff;
+    color: #000;
+    font: 12px/1 "Segoe UI", system-ui, sans-serif;
+  }
+  html[data-view="powershell"] .bar .title { flex: 1; }
+  html[data-view="powershell"] .bar .btn { width: 46px; height: 32px; }
+
+  html[data-view="bash"] .win { border: 1px solid #000; border-radius: 10px; }
+  html[data-view="bash"] .bar {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, auto) 1fr;
+    height: 40px;
+    padding: 0 8px;
+    background: #303030;
+    color: #fff;
+    font: 500 14px/1 Ubuntu, system-ui, sans-serif;
+  }
+  html[data-view="bash"] .bar .btns { justify-self: end; gap: 10px; }
+  html[data-view="bash"] .bar .btn {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: #474747;
+  }
+
+  /* terminal */
+
+  .term {
+    min-height: 60vh;
+    padding: 10px 14px 24px;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  .term pre {
+    margin: 0;
+    font: inherit;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+  .term pre.cmd { word-break: break-all; }
+  .term pre.table {
+    white-space: pre;
+    overflow-wrap: normal;
+    overflow-x: auto;
+  }
+  .term .block { margin-bottom: calc(var(--lh) * 1em); }
+
+  .k-cmd  { color: var(--cmd); }
+  .k-dim  { color: var(--dim); }
+  .k-str  { color: var(--str); }
+  .k-user { color: var(--green); font-weight: 700; }
+  .k-path { color: var(--blue); font-weight: 700; }
+  .k-key  { color: var(--blue); font-weight: 700; }
+  .k-jstr { color: var(--jq-str); }
+  .k-bold { font-weight: 700; }
+
+  .cursor {
+    display: inline-block;
+    width: .6em;
+    background: var(--fg);
+    animation: blink 1s steps(1) infinite;
+  }
+  html[data-view="powershell"] .cursor { height: 2px; vertical-align: -.15em; }
+  html[data-view="bash"] .cursor { height: 1.1em; vertical-align: -.2em; }
+  @keyframes blink { 50% { opacity: 0; } }
+
+  /* plain */
+
+  .plain { max-width: var(--width); margin: 0 auto; padding-top: 8px; }
+  .plain h1, .plain h2 { margin: 0; font: inherit; }
+  .plain .rule { color: var(--dim); margin-bottom: calc(var(--lh) * 1em); }
+  .plain p { margin: 0 0 calc(var(--lh) * 1em); }
+  .plain section { margin-top: calc(var(--lh) * 2em); }
+  .plain ul { list-style: none; margin: 0; padding: 0; }
+  .plain .dim { color: var(--dim); }
+  .plain .rows li { display: grid; grid-template-columns: 6ch 1fr; }
+  .plain .projects li + li { margin-top: calc(var(--lh) * 1em); }
+  .plain .projects .meta { display: block; padding-left: 4ch; color: var(--dim); }
+  .plain .bullets li { padding-left: 2ch; text-indent: -2ch; }
+  .plain .bullets li::before { content: "- "; }
+  .plain .contact { display: grid; grid-template-columns: 8ch 1fr; margin: 0; }
+  .plain .contact dd { margin: 0; overflow-wrap: anywhere; }
+  .plain .contact dt { color: var(--dim); }
+
+  @media (max-width: 720px) {
+    body { padding: 12px 10px 48px; }
+    html[data-view="powershell"] { --size: 13.5px; }
+    html[data-view="bash"] { --size: 15px; }
+    html[data-view="plain"] { --size: 14px; }
+    .term { padding: 8px 10px 20px; }
+    html[data-view="powershell"] .bar .btn { width: 36px; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cursor { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="views" aria-label="View">
+  <button type="button" data-view="powershell">powershell</button>
+  <button type="button" data-view="bash">bash</button>
+  <button type="button" data-view="plain">plain</button>
+</nav>
+
+<main>
+  <div class="win">
+    <div class="bar" id="bar" aria-hidden="true"></div>
+    <div class="term" id="term"></div>
+  </div>
+  <article class="plain" id="plain"></article>
+  <noscript>
+    <p>Ishan Bojja. Bioinformatics and machine learning. <a href="https://github.com/ISHANBOJJA">GitHub</a></p>
+  </noscript>
+</main>
+
+<script>
+// Content. Everything below the next divider is rendering.
+
+const PROFILE = {
+  name: "Ishan Bojja",
+  birthYear: null,                     // set a year to show it next to your name
+  user: "ishan",
+  host: "bojja",
+  email: ["ishanbojja", "gmail.com"],  // split so the address isn't in the page source
+  github: "ISHANBOJJA"
+};
+
+const ABOUT = [
+  "Bioinformatics and machine learning.",
+  "I build models that read biological and medical data: skin lesions, eye movement, MRI volumes. The goal is early detection, catching the thing while it is still small enough to do something about.",
+  "Currently looking for research mentorship in computational biology."
+];
+
+const AWARDS = [
+  { year: "2026", award: "Thermo Fisher Junior Innovators Challenge, Top 300", scope: "National" },
+  { year: "2026", award: "CyberPatriot Semifinals, Top 20", scope: "National" },
+  { year: "2026", award: "California State Science and Engineering Fair", scope: "State" },
+  { year: "2026", award: "Greater San Diego Science Fair, Gold Categorical", scope: "Regional" },
+  { year: "2026", award: "Advancing Equity through Innovation Award", scope: "Regional" },
+  { year: "2025", award: "California State Science and Engineering Fair", scope: "State" },
+  { year: "2025", award: "California Seal of the Senate", scope: "State" },
+  { year: "2025", award: "Greater San Diego Science Fair, Gold Categorical", scope: "Regional" },
+  { year: "2025", award: "Advancing Equity through Innovation Award", scope: "Regional" }
+];
+
+const PROJECTS = [
+  {
+    title: "Early Detection of Superficial Spreading Melanoma with Machine Learning",
+    field: "dermatology, computer vision",
+    team: ["Ishan Bojja", "Aadarsh Taleppady"]
+  },
+  {
+    title: "Early Detection of Congenital Nystagmus with Artificial Intelligence",
+    field: "ophthalmology, motion analysis",
+    team: ["Ishan Bojja", "Howell Jian"]
+  },
+  {
+    title: "Implementing Artificial Intelligence with MRI Scans for Tumor Detection",
+    field: "neuro-oncology, medical imaging",
+    team: ["Ishan Bojja"]
+  },
+  {
+    title: "AlwaysAround, an AI powered desktop robot assistant",
+    field: "robotics, embedded systems",
+    team: ["Ishan Bojja"]
+  }
+];
+
+const ACTIVITIES = [
+  "Coding Club Officer",
+  "Instructor, summer coding camp, 2026. 35 students, co-taught."
+];
+
+// ---------------------------------------------------------------------------
+
+const VIEWS = ["powershell", "bash", "plain"];
+const root = document.documentElement;
+const bar = document.getElementById("bar");
+const term = document.getElementById("term");
+const plain = document.getElementById("plain");
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const span = (cls, s) => `<span class="${cls}">${esc(s)}</span>`;
+const heading = () => PROFILE.birthYear ? `${PROFILE.name}, born ${PROFILE.birthYear}` : PROFILE.name;
+const emailAddr = () => PROFILE.email.join("@");
+const githubUrl = () => "https://github.com/" + PROFILE.github;
+const emailLink = () => `<a href="mailto:${esc(emailAddr())}">${esc(emailAddr())}</a>`;
+const githubLink = () => `<a href="${esc(githubUrl())}">${esc(githubUrl())}</a>`;
+
+// PowerShell's Format-Table uses one space between columns and a dashed rule;
+// `column -t` uses two spaces and no rule.
+function table(rows, cols, gap, rule) {
+  const width = cols.map(c => Math.max(c.length, ...rows.map(r => r[c].length)));
+  const fmt = cells => cells.map((s, i) => s.padEnd(width[i])).join(" ".repeat(gap)).trimEnd();
+  const lines = [fmt(cols)];
+  if (rule) lines.push(fmt(cols.map(c => "-".repeat(c.length))));
+  rows.forEach(r => lines.push(fmt(cols.map(c => r[c]))));
+  return esc(lines.join("\n"));
+}
+
+function formatList(items) {
+  const keys = ["title", "field", "team"];
+  const w = Math.max(...keys.map(k => k.length));
+  return items.map(p => keys.map(k => {
+    const v = Array.isArray(p[k]) ? "{" + p[k].join(", ") + "}" : p[k];
+    return esc(k.padEnd(w) + " : " + v);
+  }).join("\n")).join("\n\n");
+}
+
+function jq(items) {
+  const key = k => span("k-key", JSON.stringify(k));
+  const str = s => span("k-jstr", JSON.stringify(s));
+  const b = s => span("k-bold", s);
+  return items.map(p => [
+    b("{"),
+    `  ${key("title")}: ${str(p.title)},`,
+    `  ${key("field")}: ${str(p.field)},`,
+    `  ${key("team")}: ${b("[")}`,
+    p.team.map(m => "    " + str(m)).join(",\n"),
+    `  ${b("]")}`,
+    b("}")
+  ].join("\n")).join("\n");
+}
+
+// Approximates PSReadLine's defaults: commands yellow, parameters and
+// pipes gray, quoted strings cyan, plain arguments uncolored.
+function psHighlight(line) {
+  let atCommand = true;
+  return line.match(/"[^"]*"|'[^']*'|\S+/g).map(t => {
+    if (t === "|") { atCommand = true; return span("k-dim", t); }
+    if (atCommand) { atCommand = false; return span("k-cmd", t); }
+    if (t[0] === '"' || t[0] === "'") return span("k-str", t);
+    if (t[0] === "-") return span("k-dim", t);
+    return esc(t);
+  }).join(" ");
+}
+
+const aboutText = () => esc([heading(), "=".repeat(heading().length), ""].concat(ABOUT.join("\n\n")).join("\n"));
+const activitiesText = () => esc(ACTIVITIES.join("\n"));
+const contactText = () => `email   ${emailLink()}\ngithub  ${githubLink()}`;
+const AWARD_COLS = ["year", "award", "scope"];
+
+const svg = (size, body) =>
+  `<svg width="${size}" height="${size}" viewBox="0 0 10 10" fill="none" stroke="currentColor">${body}</svg>`;
+
+const SHELLS = {
+  powershell: {
+    bar: () =>
+      `<svg width="16" height="16" viewBox="0 0 16 16"><rect width="16" height="16" rx="2" fill="#2671be"/>` +
+      `<path d="M4 4.5 7.5 8 4 11.5M8.5 11.5H12" fill="none" stroke="#fff" stroke-width="1.5"/></svg>` +
+      `<span class="title">Windows PowerShell</span>` +
+      `<span class="btns">` +
+        `<span class="btn">${svg(10, '<path d="M0 5.5h10"/>')}</span>` +
+        `<span class="btn">${svg(10, '<rect x=".5" y=".5" width="9" height="9"/>')}</span>` +
+        `<span class="btn">${svg(10, '<path d="M0 0l10 10M10 0L0 10"/>')}</span>` +
+      `</span>`,
+    banner: "Windows PowerShell\nCopyright (C) Microsoft Corporation. All rights reserved.",
+    prompt: () => esc(`PS C:\\Users\\${PROFILE.name.split(" ")[0]}\\portfolio> `),
+    highlight: psHighlight,
+    session: () => [
+      ["Get-Content .\\about.txt", aboutText()],
+      ['Import-Csv .\\awards.tsv -Delimiter "`t" | Format-Table -AutoSize', table(AWARDS, AWARD_COLS, 1, true), true],
+      ["Get-Content .\\projects.json -Raw | ConvertFrom-Json | Format-List", formatList(PROJECTS)],
+      ["Get-Content .\\activities.txt", activitiesText()],
+      ["Get-Content .\\contact.txt", contactText()]
+    ]
+  },
+  bash: {
+    bar: () =>
+      `<span></span>` +
+      `<span class="title">${esc(`${PROFILE.user}@${PROFILE.host}: ~/portfolio`)}</span>` +
+      `<span class="btns">` +
+        `<span class="btn">${svg(8, '<path d="M1 8.5h8" stroke-width="1.5"/>')}</span>` +
+        `<span class="btn">${svg(8, '<rect x="1" y="1" width="8" height="8" stroke-width="1.5"/>')}</span>` +
+        `<span class="btn">${svg(8, '<path d="M1 1l8 8M9 1L1 9" stroke-width="1.5"/>')}</span>` +
+      `</span>`,
+    banner: null,
+    prompt: () => span("k-user", `${PROFILE.user}@${PROFILE.host}`) + ":" + span("k-path", "~/portfolio") + "$ ",
+    highlight: esc,
+    session: () => [
+      ["cat about.txt", aboutText()],
+      ["column -t -s $'\\t' awards.tsv", table(AWARDS, AWARD_COLS, 2, false), true],
+      ["jq '.[]' projects.json", jq(PROJECTS)],
+      ["cat activities.txt", activitiesText()],
+      ["cat contact.txt", contactText()]
+    ]
+  }
+};
+
+function renderTerminal(name) {
+  const s = SHELLS[name];
+  bar.innerHTML = s.bar();
+  let html = `<h1 class="sr-only">${esc(PROFILE.name)}</h1>`;
+  if (s.banner) html += `<div class="block"><pre>${esc(s.banner)}</pre></div>`;
+  for (const [cmd, out, isTable] of s.session()) {
+    html += `<div class="block"><pre class="cmd">${s.prompt()}${s.highlight(cmd)}</pre>` +
+            `<pre${isTable ? ' class="table"' : ""}>${out}</pre></div>`;
+  }
+  html += `<pre class="cmd">${s.prompt()}<span class="cursor" aria-hidden="true"></span></pre>`;
+  term.innerHTML = html;
+}
+
+function renderPlain() {
+  const name = heading();
+  const h2 = t => `<h2>${esc(t)}</h2><div class="rule" aria-hidden="true">${"-".repeat(t.length)}</div>`;
+
+  const awards = AWARDS.map(a =>
+    `<li><span class="dim">${esc(a.year)}</span><span>${esc(a.award)} <span class="dim">(${esc(a.scope)})</span></span></li>`
+  ).join("");
+
+  const projects = PROJECTS.map(p => {
+    const others = p.team.filter(m => m !== PROFILE.name);
+    return `<li>${esc(p.title)}` +
+      `<span class="meta">${esc(p.field)}</span>` +
+      (others.length ? `<span class="meta">with ${esc(others.join(", "))}</span>` : "") +
+      `</li>`;
+  }).join("");
+
+  plain.innerHTML =
+    `<header>` +
+      `<h1>${esc(name)}</h1>` +
+      `<div class="rule" aria-hidden="true">${"=".repeat(name.length)}</div>` +
+      ABOUT.map(p => `<p>${esc(p)}</p>`).join("") +
+    `</header>` +
+    `<section>${h2("Awards")}<ul class="rows">${awards}</ul></section>` +
+    `<section>${h2("Projects")}<ul class="projects">${projects}</ul></section>` +
+    `<section>${h2("Activities")}<ul class="bullets">${ACTIVITIES.map(a => `<li>${esc(a)}</li>`).join("")}</ul></section>` +
+    `<section>${h2("Contact")}<dl class="contact">` +
+      `<dt>email</dt><dd>${emailLink()}</dd>` +
+      `<dt>github</dt><dd>${githubLink()}</dd>` +
+    `</dl></section>`;
+}
+
+function show(view) {
+  if (!VIEWS.includes(view)) view = "powershell";
+  root.setAttribute("data-view", view);
+  if (view === "plain") renderPlain(); else renderTerminal(view);
+  document.querySelectorAll(".views button").forEach(b =>
+    b.setAttribute("aria-pressed", String(b.dataset.view === view)));
+  try { localStorage.setItem("view", view); } catch (e) { /* storage blocked */ }
+}
+
+document.querySelector(".views").addEventListener("click", e => {
+  const b = e.target.closest("button");
+  if (!b) return;
+  show(b.dataset.view);
+  history.replaceState(null, "", "#" + b.dataset.view);
+});
+
+window.addEventListener("hashchange", () => show(location.hash.slice(1)));
+
+show(root.getAttribute("data-view"));
+</script>
+</body>
+</html>
