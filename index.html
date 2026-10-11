@@ -105,11 +105,103 @@
     border: 0;
   }
 
+  /* two-column layout: profile on the left, terminal on the right */
+
+  .layout {
+    --side: 260px;
+    --gap: 32px;
+    max-width: calc(var(--side) + var(--gap) + var(--width));
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: var(--side) minmax(0, 1fr);
+    gap: var(--gap);
+    align-items: start;
+  }
+  .col { min-width: 0; }
+
+  /* left sidebar */
+
+  .side {
+    position: sticky;
+    top: 20px;
+    margin-top: 35px; /* lines the photo up with the top of the terminal window */
+    color: var(--ui);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  html[data-view="bash"] .side { font-size: 16px; }
+  .side p { margin: 0; }
+
+  .photo {
+    display: grid;
+    place-items: center;
+    aspect-ratio: 4 / 5;
+    overflow: hidden;
+    background: var(--bg, transparent);
+    color: var(--ui-dim);
+    font-size: 40px;
+    border: 1px solid rgba(127, 127, 127, .35);
+  }
+  .photo::before { content: attr(data-initials); grid-area: 1 / 1; }
+  .photo img {
+    grid-area: 1 / 1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  html[data-view="powershell"] .photo {
+    border-color: #3a3a3a;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+  html[data-view="bash"] .photo {
+    border-color: #000;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+  }
+  html[data-view="plain"] .photo { border-radius: 4px; }
+
+  .side-id { margin-top: 16px; }
+  .side-name { font-size: 1.3em; font-weight: 700; }
+  .side-tag { margin-top: 4px; color: var(--ui-dim); }
+  .side-more { margin-top: 16px; }
+  .side dl {
+    display: grid;
+    grid-template-columns: 9ch minmax(0, 1fr);
+    margin: 0;
+  }
+  .side dl + dl {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px dashed rgba(127, 127, 127, .35);
+  }
+  .side dt { color: var(--ui-dim); }
+  .side dd { margin: 0; overflow-wrap: anywhere; }
+
+  @media (max-width: 920px) {
+    .layout {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 20px;
+      max-width: var(--width);
+    }
+    .side {
+      position: static;
+      margin-top: 0;
+      display: grid;
+      grid-template-columns: 88px minmax(0, 1fr);
+      column-gap: 14px;
+      align-items: center;
+    }
+    .photo { aspect-ratio: 1; font-size: 28px; }
+    .side-id { margin-top: 0; }
+    .side-more { grid-column: 1 / -1; }
+  }
+
   /* view switcher */
 
   .views {
     max-width: var(--width);
-    margin: 0 auto 10px;
+    margin: 0 0 10px;
     display: flex;
     justify-content: flex-end;
     font-size: 13px;
@@ -138,7 +230,7 @@
 
   .win {
     max-width: var(--width);
-    margin: 0 auto;
+    margin: 0;
     overflow: hidden;
     box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
   }
@@ -221,7 +313,7 @@
 
   /* plain */
 
-  .plain { max-width: var(--width); margin: 0 auto; padding-top: 8px; }
+  .plain { max-width: var(--width); margin: 0; padding-top: 8px; }
   .plain h1, .plain h2 { margin: 0; font: inherit; }
   .plain .rule { color: var(--dim); margin-bottom: calc(var(--lh) * 1em); }
   .plain p { margin: 0 0 calc(var(--lh) * 1em); }
@@ -253,22 +345,28 @@
 </head>
 <body>
 
-<nav class="views" aria-label="View">
-  <button type="button" data-view="powershell">powershell</button>
-  <button type="button" data-view="bash">bash</button>
-  <button type="button" data-view="plain">plain</button>
-</nav>
+<div class="layout">
+  <aside class="side" id="side" aria-label="Profile"></aside>
 
-<main>
-  <div class="win">
-    <div class="bar" id="bar" aria-hidden="true"></div>
-    <div class="term" id="term"></div>
+  <div class="col">
+    <nav class="views" aria-label="View">
+      <button type="button" data-view="powershell">powershell</button>
+      <button type="button" data-view="bash">bash</button>
+      <button type="button" data-view="plain">plain</button>
+    </nav>
+
+    <main>
+      <div class="win">
+        <div class="bar" id="bar" aria-hidden="true"></div>
+        <div class="term" id="term"></div>
+      </div>
+      <article class="plain" id="plain"></article>
+      <noscript>
+        <p>Ishan Bojja. Bioinformatics and machine learning. <a href="https://github.com/ISHANBOJJA">GitHub</a></p>
+      </noscript>
+    </main>
   </div>
-  <article class="plain" id="plain"></article>
-  <noscript>
-    <p>Ishan Bojja. Bioinformatics and machine learning. <a href="https://github.com/ISHANBOJJA">GitHub</a></p>
-  </noscript>
-</main>
+</div>
 
 <script>
 // Content. Everything below the next divider is rendering.
@@ -280,6 +378,22 @@ const PROFILE = {
   host: "bojja",
   email: ["ishanbojja", "gmail.com"],  // split so the address isn't in the page source
   github: "ISHANBOJJA"
+};
+
+// Left column. Put your photo in the same folder as this file.
+// Leave photo as "" to show your initials instead.
+const SIDEBAR = {
+  photo: "me.jpg",
+  photoAlt: "Ishan Bojja",
+  tagline: "I build models that read biological and medical data.",
+  facts: [
+    ["focus", "bioinformatics, ML"],
+    ["seeking", "research mentorship"],
+    ["club", "Oak Valley Coding Club, VP"]
+  ],
+  // GitHub and email are added automatically. Add more here, e.g.
+  // { label: "resume", href: "resume.pdf", text: "resume.pdf" }
+  links: []
 };
 
 const ABOUT = [
@@ -332,6 +446,7 @@ const ACTIVITIES = [
 
 const VIEWS = ["powershell", "bash", "plain"];
 const root = document.documentElement;
+const side = document.getElementById("side");
 const bar = document.getElementById("bar");
 const term = document.getElementById("term");
 const plain = document.getElementById("plain");
@@ -343,6 +458,34 @@ const emailAddr = () => PROFILE.email.join("@");
 const githubUrl = () => "https://github.com/" + PROFILE.github;
 const emailLink = () => `<a href="mailto:${esc(emailAddr())}">${esc(emailAddr())}</a>`;
 const githubLink = () => `<a href="${esc(githubUrl())}">${esc(githubUrl())}</a>`;
+
+function renderSide() {
+  const initials = PROFILE.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
+  const img = SIDEBAR.photo ? `<img src="${esc(SIDEBAR.photo)}" alt="${esc(SIDEBAR.photoAlt)}">` : "";
+
+  const facts = SIDEBAR.facts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+  const links = [
+    ["github", githubUrl(), PROFILE.github],
+    ["email", "mailto:" + emailAddr(), emailAddr()]
+  ].concat(SIDEBAR.links.map(l => [l.label, l.href, l.text || l.href]))
+   .map(([k, href, text]) => `<dt>${esc(k)}</dt><dd><a href="${esc(href)}">${esc(text)}</a></dd>`)
+   .join("");
+
+  side.innerHTML =
+    `<div class="photo" data-initials="${esc(initials)}">${img}</div>` +
+    `<div class="side-id">` +
+      `<p class="side-name">${esc(PROFILE.name)}</p>` +
+      (SIDEBAR.tagline ? `<p class="side-tag">${esc(SIDEBAR.tagline)}</p>` : "") +
+    `</div>` +
+    `<div class="side-more">` +
+      (facts ? `<dl>${facts}</dl>` : "") +
+      `<dl>${links}</dl>` +
+    `</div>`;
+
+  // If the photo is missing, fall back to initials instead of a broken image.
+  const photo = side.querySelector(".photo img");
+  if (photo) photo.addEventListener("error", () => photo.remove());
+}
 
 // PowerShell's Format-Table uses one space between columns and a dashed rule;
 // `column -t` uses two spaces and no rule.
@@ -506,6 +649,7 @@ document.querySelector(".views").addEventListener("click", e => {
 
 window.addEventListener("hashchange", () => show(location.hash.slice(1)));
 
+renderSide();
 show(root.getAttribute("data-view"));
 </script>
 </body>
