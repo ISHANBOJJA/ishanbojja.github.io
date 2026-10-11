@@ -6,6 +6,15 @@
 <meta name="google-site-verification" content="SqLadjRt3GQPCgWDllX73IX-BNpmzgDQCgDhgvWqRtU">
 <title>Ishan Bojja</title>
 <meta name="description" content="Bioinformatics and machine learning projects, science fair awards, and teaching work by Ishan Bojja.">
+<link rel="canonical" href="https://ishanbojja.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ishanbojja.github.io/">
+<meta property="og:title" content="Ishan Bojja">
+<meta property="og:description" content="Bioinformatics and machine learning projects, science fair awards, and teaching work.">
+<meta property="og:image" content="https://ishanbojja.github.io/me.jpg">
+<meta name="twitter:card" content="summary">
+<meta name="theme-color" content="#12161d">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='2' fill='%23012456'/%3E%3Cpath d='M4 4.5 7.5 8 4 11.5M8.5 11.5H12' fill='none' stroke='%23fff' stroke-width='1.5'/%3E%3C/svg%3E">
 <script>
   // Set the view before first paint so a saved choice doesn't flash.
   (function () {
@@ -19,15 +28,21 @@
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&family=Ubuntu:wght@500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:wght@400;700&family=Ubuntu:wght@400;500&display=swap">
 <style>
   * { box-sizing: border-box; }
 
+  /* Each view sets the terminal colors and the "desktop" around it:
+     the sidebar uses the UI font of the OS being shown. */
+
   html[data-view="powershell"] {
     color-scheme: dark;
-    --page: #1b1d22;
-    --ui: #e4e4e4;
-    --ui-dim: #8d9099;
+    --page: #12161d;
+    --ui: #e3e6eb;
+    --ui-dim: #8a929e;
+    --ui-font: "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --name-weight: 600;
+    --radius: 0;
     --bg: #012456;
     --fg: #eeedf0;
     --cmd: #f9f1a5;
@@ -41,9 +56,12 @@
 
   html[data-view="bash"] {
     color-scheme: dark;
-    --page: #1b1b1b;
-    --ui: #e4e4e4;
-    --ui-dim: #8d8d8d;
+    --page: #1a1819;
+    --ui: #e7e4e6;
+    --ui-dim: #8f8a8d;
+    --ui-font: Ubuntu, system-ui, sans-serif;
+    --name-weight: 500;
+    --radius: 10px;
     --bg: #300a24;
     --fg: #ffffff;
     --green: #8ae234;
@@ -60,6 +78,9 @@
     --page: #fbfbf8;
     --ui: #1a1a1a;
     --ui-dim: #6b6b6b;
+    --ui-font: var(--mono);
+    --name-weight: 700;
+    --radius: 3px;
     --fg: #1a1a1a;
     --dim: #6b6b6b;
     --mono: ui-monospace, "SF Mono", Menlo, Consolas, "DejaVu Sans Mono", monospace;
@@ -94,53 +115,56 @@
     text-decoration: underline;
     text-underline-offset: 3px;
   }
-
-  .sr-only {
-    position: absolute;
-    width: 1px; height: 1px;
-    margin: -1px; padding: 0;
-    overflow: hidden;
-    clip: rect(0 0 0 0);
-    white-space: nowrap;
-    border: 0;
+  a:focus-visible,
+  button:focus-visible {
+    outline: 1px solid currentColor;
+    outline-offset: 2px;
   }
 
-  /* two-column layout: profile on the left, terminal on the right */
+  /* layout: view switcher sits above the window, sidebar lines up with the window */
 
   .layout {
-    --side: 260px;
-    --gap: 32px;
+    --side: 236px;
+    --gap: 40px;
     max-width: calc(var(--side) + var(--gap) + var(--width));
     margin: 0 auto;
     display: grid;
     grid-template-columns: var(--side) minmax(0, 1fr);
-    gap: var(--gap);
-    align-items: start;
+    grid-template-areas:
+      ".    views"
+      "side main";
+    column-gap: var(--gap);
   }
-  .col { min-width: 0; }
+  main { grid-area: main; min-width: 0; }
 
-  /* left sidebar */
+  /* sidebar */
 
   .side {
+    grid-area: side;
+    align-self: start;
     position: sticky;
     top: 20px;
-    margin-top: 35px; /* lines the photo up with the top of the terminal window */
     color: var(--ui);
-    font-size: 14px;
-    line-height: 1.5;
+    font-family: var(--ui-font);
+    font-size: 15px;
+    line-height: 1.45;
   }
-  html[data-view="bash"] .side { font-size: 16px; }
-  .side p { margin: 0; }
+  :where(.side) :where(h1, p, ul) { margin: 0; }
+  :where(.side) ul { list-style: none; padding: 0; }
 
   .photo {
+    grid-area: photo;
     display: grid;
     place-items: center;
     aspect-ratio: 4 / 5;
     overflow: hidden;
-    background: var(--bg, transparent);
+    border-radius: var(--radius);
+    outline: 1px solid rgba(127, 127, 127, .25);
+    outline-offset: -1px;
+    background: var(--bg, rgba(127, 127, 127, .08));
     color: var(--ui-dim);
-    font-size: 40px;
-    border: 1px solid rgba(127, 127, 127, .35);
+    font-size: 34px;
+    letter-spacing: .04em;
   }
   .photo::before { content: attr(data-initials); grid-area: 1 / 1; }
   .photo img {
@@ -150,58 +174,33 @@
     height: 100%;
     object-fit: cover;
   }
-  html[data-view="powershell"] .photo {
-    border-color: #3a3a3a;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
-  }
-  html[data-view="bash"] .photo {
-    border-color: #000;
-    border-radius: 10px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
-  }
-  html[data-view="plain"] .photo { border-radius: 4px; }
 
-  .side-id { margin-top: 16px; }
-  .side-name { font-size: 1.3em; font-weight: 700; }
-  .side-tag { margin-top: 4px; color: var(--ui-dim); }
-  .side-more { margin-top: 16px; }
-  .side dl {
-    display: grid;
-    grid-template-columns: 9ch minmax(0, 1fr);
-    margin: 0;
+  .id { grid-area: id; margin-top: 18px; }
+  .name {
+    font-size: 24px;
+    line-height: 1.2;
+    font-weight: var(--name-weight);
+    letter-spacing: -.01em;
   }
-  .side dl + dl {
-    margin-top: 12px;
-    padding-top: 12px;
-    border-top: 1px dashed rgba(127, 127, 127, .35);
-  }
-  .side dt { color: var(--ui-dim); }
-  .side dd { margin: 0; overflow-wrap: anywhere; }
+  .side-rule { display: none; }
+  .role { margin-top: 4px; color: var(--ui-dim); }
+  .note { grid-area: note; margin-top: 20px; }
+  .links { grid-area: links; margin-top: 12px; }
+  .links li + li { margin-top: 2px; }
+  .links a { text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }
+  .links a:hover { text-decoration-color: currentColor; }
 
-  @media (max-width: 920px) {
-    .layout {
-      grid-template-columns: minmax(0, 1fr);
-      gap: 20px;
-      max-width: var(--width);
-    }
-    .side {
-      position: static;
-      margin-top: 0;
-      display: grid;
-      grid-template-columns: 88px minmax(0, 1fr);
-      column-gap: 14px;
-      align-items: center;
-    }
-    .photo { aspect-ratio: 1; font-size: 28px; }
-    .side-id { margin-top: 0; }
-    .side-more { grid-column: 1 / -1; }
-  }
+  /* plain view: the sidebar is part of the text document */
+  html[data-view="plain"] .side { font-size: var(--size); line-height: var(--lh); }
+  html[data-view="plain"] .name { font-size: inherit; line-height: inherit; letter-spacing: 0; }
+  html[data-view="plain"] .side-rule { display: block; color: var(--dim); }
+  html[data-view="plain"] .role { margin-top: 0; }
 
   /* view switcher */
 
   .views {
-    max-width: var(--width);
-    margin: 0 0 10px;
+    grid-area: views;
+    margin-bottom: 10px;
     display: flex;
     justify-content: flex-end;
     font-size: 13px;
@@ -221,7 +220,6 @@
   .views button:hover { color: var(--ui); }
   .views button[aria-pressed="true"]::before,
   .views button[aria-pressed="true"]::after { visibility: visible; }
-  .views button:focus-visible { outline: 1px solid var(--ui); outline-offset: 2px; }
 
   /* window */
 
@@ -229,10 +227,9 @@
   html:not([data-view="plain"]) .plain { display: none; }
 
   .win {
-    max-width: var(--width);
-    margin: 0;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, .45);
+    border-radius: var(--radius);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, .45);
   }
 
   .bar { display: flex; align-items: center; user-select: none; }
@@ -253,7 +250,7 @@
   html[data-view="powershell"] .bar .title { flex: 1; }
   html[data-view="powershell"] .bar .btn { width: 46px; height: 32px; }
 
-  html[data-view="bash"] .win { border: 1px solid #000; border-radius: 10px; }
+  html[data-view="bash"] .win { border: 1px solid #000; }
   html[data-view="bash"] .bar {
     display: grid;
     grid-template-columns: 1fr minmax(0, auto) 1fr;
@@ -290,6 +287,8 @@
     overflow-wrap: normal;
     overflow-x: auto;
   }
+  /* PowerShell's Format-Table and Format-List print a blank line first */
+  .term pre.pad { margin-top: calc(var(--lh) * 1em); }
   .term .block { margin-bottom: calc(var(--lh) * 1em); }
 
   .k-cmd  { color: var(--cmd); }
@@ -313,11 +312,11 @@
 
   /* plain */
 
-  .plain { max-width: var(--width); margin: 0; padding-top: 8px; }
-  .plain h1, .plain h2 { margin: 0; font: inherit; }
+  .plain { padding-top: 8px; }
+  .plain h2 { margin: 0; font: inherit; }
   .plain .rule { color: var(--dim); margin-bottom: calc(var(--lh) * 1em); }
   .plain p { margin: 0 0 calc(var(--lh) * 1em); }
-  .plain section { margin-top: calc(var(--lh) * 2em); }
+  .plain section + section { margin-top: calc(var(--lh) * 2em); }
   .plain ul { list-style: none; margin: 0; padding: 0; }
   .plain .dim { color: var(--dim); }
   .plain .rows li { display: grid; grid-template-columns: 6ch 1fr; }
@@ -325,12 +324,37 @@
   .plain .projects .meta { display: block; padding-left: 4ch; color: var(--dim); }
   .plain .bullets li { padding-left: 2ch; text-indent: -2ch; }
   .plain .bullets li::before { content: "- "; }
-  .plain .contact { display: grid; grid-template-columns: 8ch 1fr; margin: 0; }
-  .plain .contact dd { margin: 0; overflow-wrap: anywhere; }
-  .plain .contact dt { color: var(--dim); }
+
+  /* narrow screens: sidebar becomes a header above the window */
+
+  @media (max-width: 920px) {
+    .layout {
+      max-width: var(--width);
+      grid-template-columns: minmax(0, 1fr);
+      grid-template-areas: "side" "views" "main";
+    }
+    .side {
+      position: static;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 76px minmax(0, 1fr);
+      grid-template-areas:
+        "photo id"
+        "note  note"
+        "links links";
+      column-gap: 14px;
+      align-items: center;
+    }
+    .photo { aspect-ratio: 1; font-size: 22px; }
+    .id { margin-top: 0; }
+    .name { font-size: 21px; }
+    .note { margin-top: 16px; }
+    .links { margin-top: 6px; display: flex; flex-wrap: wrap; column-gap: 20px; }
+    .links li + li { margin-top: 0; }
+  }
 
   @media (max-width: 720px) {
-    body { padding: 12px 10px 48px; }
+    body { padding: 16px 12px 48px; }
     html[data-view="powershell"] { --size: 13.5px; }
     html[data-view="bash"] { --size: 15px; }
     html[data-view="plain"] { --size: 14px; }
@@ -341,6 +365,28 @@
   @media (prefers-reduced-motion: reduce) {
     .cursor { animation: none; }
   }
+
+  /* printing always gives the plain version */
+
+  @media print {
+    html[data-view] {
+      color-scheme: light;
+      --page: #fff;
+      --ui: #000;
+      --ui-dim: #555;
+      --fg: #000;
+      --dim: #555;
+      --size: 11pt;
+      --lh: 1.45;
+    }
+    body { padding: 0; }
+    .layout { display: block; max-width: none; }
+    .side { position: static; margin-bottom: 2em; }
+    .photo,
+    html[data-view] .views,
+    html[data-view] .win { display: none; }
+    html[data-view] .plain { display: block; padding-top: 0; }
+  }
 </style>
 </head>
 <body>
@@ -348,24 +394,22 @@
 <div class="layout">
   <aside class="side" id="side" aria-label="Profile"></aside>
 
-  <div class="col">
-    <nav class="views" aria-label="View">
-      <button type="button" data-view="powershell">powershell</button>
-      <button type="button" data-view="bash">bash</button>
-      <button type="button" data-view="plain">plain</button>
-    </nav>
+  <nav class="views" aria-label="View">
+    <button type="button" data-view="powershell">powershell</button>
+    <button type="button" data-view="bash">bash</button>
+    <button type="button" data-view="plain">plain</button>
+  </nav>
 
-    <main>
-      <div class="win">
-        <div class="bar" id="bar" aria-hidden="true"></div>
-        <div class="term" id="term"></div>
-      </div>
-      <article class="plain" id="plain"></article>
-      <noscript>
-        <p>Ishan Bojja. Bioinformatics and machine learning. <a href="https://github.com/ISHANBOJJA">GitHub</a></p>
-      </noscript>
-    </main>
-  </div>
+  <main>
+    <div class="win">
+      <div class="bar" id="bar" aria-hidden="true"></div>
+      <div class="term" id="term"></div>
+    </div>
+    <article class="plain" id="doc"></article>
+    <noscript>
+      <p>Ishan Bojja. Bioinformatics and machine learning. <a href="https://github.com/ISHANBOJJA">GitHub</a></p>
+    </noscript>
+  </main>
 </div>
 
 <script>
@@ -380,26 +424,19 @@ const PROFILE = {
   github: "ISHANBOJJA"
 };
 
-// Left column. Put your photo in the same folder as this file.
-// Leave photo as "" to show your initials instead.
+// Left column. Email and GitHub links are added automatically.
 const SIDEBAR = {
-  photo: "me.jpg",
+  photo: "me.jpg",                     // "" shows your initials instead
   photoAlt: "Ishan Bojja",
-  tagline: "I build models that read biological and medical data.",
-  facts: [
-    ["focus", "bioinformatics, ML"],
-    ["seeking", "research mentorship"],
-    ["club", "Oak Valley Coding Club, VP"]
-  ],
-  // GitHub and email are added automatically. Add more here, e.g.
-  // { label: "resume", href: "resume.pdf", text: "resume.pdf" }
-  links: []
+  role: "Bioinformatics and machine learning",
+  note: "Looking for research mentorship in computational biology.",
+  links: [
+    // { text: "Resume (PDF)", href: "resume.pdf" }
+  ]
 };
 
 const ABOUT = [
-  "Bioinformatics and machine learning.",
-  "I build models that read biological and medical data: skin lesions, eye movement, MRI volumes.",
-  "Currently looking for research mentorship in computational biology."
+  "I build models that read biological and medical data: skin lesions, eye movement, MRI volumes."
 ];
 
 const AWARDS = [
@@ -449,42 +486,37 @@ const root = document.documentElement;
 const side = document.getElementById("side");
 const bar = document.getElementById("bar");
 const term = document.getElementById("term");
-const plain = document.getElementById("plain");
+// Not id="plain": the #plain link would scroll the page down to it.
+const plain = document.getElementById("doc");
+const themeColor = document.querySelector('meta[name="theme-color"]');
 
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
 const span = (cls, s) => `<span class="${cls}">${esc(s)}</span>`;
 const heading = () => PROFILE.birthYear ? `${PROFILE.name}, born ${PROFILE.birthYear}` : PROFILE.name;
 const emailAddr = () => PROFILE.email.join("@");
 const githubUrl = () => "https://github.com/" + PROFILE.github;
-const emailLink = () => `<a href="mailto:${esc(emailAddr())}">${esc(emailAddr())}</a>`;
-const githubLink = () => `<a href="${esc(githubUrl())}">${esc(githubUrl())}</a>`;
 
 function renderSide() {
   const initials = PROFILE.name.split(/\s+/).map(w => w[0]).join("").slice(0, 2).toUpperCase();
-  const img = SIDEBAR.photo ? `<img src="${esc(SIDEBAR.photo)}" alt="${esc(SIDEBAR.photoAlt)}">` : "";
-
-  const facts = SIDEBAR.facts.map(([k, v]) => `<dt>${esc(k)}</dt><dd>${esc(v)}</dd>`).join("");
+  const photo = SIDEBAR.photo ? `<img src="${esc(SIDEBAR.photo)}" alt="${esc(SIDEBAR.photoAlt)}">` : "";
   const links = [
-    ["github", githubUrl(), PROFILE.github],
-    ["email", "mailto:" + emailAddr(), emailAddr()]
-  ].concat(SIDEBAR.links.map(l => [l.label, l.href, l.text || l.href]))
-   .map(([k, href, text]) => `<dt>${esc(k)}</dt><dd><a href="${esc(href)}">${esc(text)}</a></dd>`)
-   .join("");
+    { text: emailAddr(), href: "mailto:" + emailAddr() },
+    { text: "github.com/" + PROFILE.github, href: githubUrl() }
+  ].concat(SIDEBAR.links);
 
   side.innerHTML =
-    `<div class="photo" data-initials="${esc(initials)}">${img}</div>` +
-    `<div class="side-id">` +
-      `<p class="side-name">${esc(PROFILE.name)}</p>` +
-      (SIDEBAR.tagline ? `<p class="side-tag">${esc(SIDEBAR.tagline)}</p>` : "") +
+    `<div class="photo" data-initials="${esc(initials)}">${photo}</div>` +
+    `<div class="id">` +
+      `<h1 class="name">${esc(PROFILE.name)}</h1>` +
+      `<div class="side-rule" aria-hidden="true">${"=".repeat(PROFILE.name.length)}</div>` +
+      `<p class="role">${esc(SIDEBAR.role)}</p>` +
     `</div>` +
-    `<div class="side-more">` +
-      (facts ? `<dl>${facts}</dl>` : "") +
-      `<dl>${links}</dl>` +
-    `</div>`;
+    (SIDEBAR.note ? `<p class="note">${esc(SIDEBAR.note)}</p>` : "") +
+    `<ul class="links">${links.map(l => `<li><a href="${esc(l.href)}">${esc(l.text)}</a></li>`).join("")}</ul>`;
 
-  // If the photo is missing, fall back to initials instead of a broken image.
-  const photo = side.querySelector(".photo img");
-  if (photo) photo.addEventListener("error", () => photo.remove());
+  // A missing photo falls back to initials instead of a broken image icon.
+  const img = side.querySelector(".photo img");
+  if (img) img.addEventListener("error", () => img.remove());
 }
 
 // PowerShell's Format-Table uses one space between columns and a dashed rule;
@@ -537,12 +569,12 @@ function psHighlight(line) {
 
 const aboutText = () => esc([heading(), "=".repeat(heading().length), ""].concat(ABOUT.join("\n\n")).join("\n"));
 const activitiesText = () => esc(ACTIVITIES.join("\n"));
-const contactText = () => `email   ${emailLink()}\ngithub  ${githubLink()}`;
 const AWARD_COLS = ["year", "award", "scope"];
 
 const svg = (size, body) =>
   `<svg width="${size}" height="${size}" viewBox="0 0 10 10" fill="none" stroke="currentColor">${body}</svg>`;
 
+// Each session entry: [command, output, classes for the output block]
 const SHELLS = {
   powershell: {
     bar: () =>
@@ -559,10 +591,9 @@ const SHELLS = {
     highlight: psHighlight,
     session: () => [
       ["Get-Content .\\about.txt", aboutText()],
-      ['Import-Csv .\\awards.tsv -Delimiter "`t" | Format-Table -AutoSize', table(AWARDS, AWARD_COLS, 1, true), true],
-      ["Get-Content .\\projects.json -Raw | ConvertFrom-Json | Format-List", formatList(PROJECTS)],
-      ["Get-Content .\\activities.txt", activitiesText()],
-      ["Get-Content .\\contact.txt", contactText()]
+      ['Import-Csv .\\awards.tsv -Delimiter "`t" | Format-Table -AutoSize', table(AWARDS, AWARD_COLS, 1, true), "table pad"],
+      ["Get-Content .\\projects.json -Raw | ConvertFrom-Json | Format-List", formatList(PROJECTS), "pad"],
+      ["Get-Content .\\activities.txt", activitiesText()]
     ]
   },
   bash: {
@@ -579,10 +610,9 @@ const SHELLS = {
     highlight: esc,
     session: () => [
       ["cat about.txt", aboutText()],
-      ["column -t -s $'\\t' awards.tsv", table(AWARDS, AWARD_COLS, 2, false), true],
+      ["column -t -s $'\\t' awards.tsv", table(AWARDS, AWARD_COLS, 2, false), "table"],
       ["jq '.[]' projects.json", jq(PROJECTS)],
-      ["cat activities.txt", activitiesText()],
-      ["cat contact.txt", contactText()]
+      ["cat activities.txt", activitiesText()]
     ]
   }
 };
@@ -590,18 +620,17 @@ const SHELLS = {
 function renderTerminal(name) {
   const s = SHELLS[name];
   bar.innerHTML = s.bar();
-  let html = `<h1 class="sr-only">${esc(PROFILE.name)}</h1>`;
+  let html = "";
   if (s.banner) html += `<div class="block"><pre>${esc(s.banner)}</pre></div>`;
-  for (const [cmd, out, isTable] of s.session()) {
+  for (const [cmd, out, cls] of s.session()) {
     html += `<div class="block"><pre class="cmd">${s.prompt()}${s.highlight(cmd)}</pre>` +
-            `<pre${isTable ? ' class="table"' : ""}>${out}</pre></div>`;
+            `<pre${cls ? ` class="${cls}"` : ""}>${out}</pre></div>`;
   }
   html += `<pre class="cmd">${s.prompt()}<span class="cursor" aria-hidden="true"></span></pre>`;
   term.innerHTML = html;
 }
 
 function renderPlain() {
-  const name = heading();
   const h2 = t => `<h2>${esc(t)}</h2><div class="rule" aria-hidden="true">${"-".repeat(t.length)}</div>`;
 
   const awards = AWARDS.map(a =>
@@ -617,26 +646,19 @@ function renderPlain() {
   }).join("");
 
   plain.innerHTML =
-    `<header>` +
-      `<h1>${esc(name)}</h1>` +
-      `<div class="rule" aria-hidden="true">${"=".repeat(name.length)}</div>` +
-      ABOUT.map(p => `<p>${esc(p)}</p>`).join("") +
-    `</header>` +
+    `<section>${h2("About")}${ABOUT.map(p => `<p>${esc(p)}</p>`).join("")}</section>` +
     `<section>${h2("Awards")}<ul class="rows">${awards}</ul></section>` +
     `<section>${h2("Projects")}<ul class="projects">${projects}</ul></section>` +
-    `<section>${h2("Activities")}<ul class="bullets">${ACTIVITIES.map(a => `<li>${esc(a)}</li>`).join("")}</ul></section>` +
-    `<section>${h2("Contact")}<dl class="contact">` +
-      `<dt>email</dt><dd>${emailLink()}</dd>` +
-      `<dt>github</dt><dd>${githubLink()}</dd>` +
-    `</dl></section>`;
+    `<section>${h2("Activities")}<ul class="bullets">${ACTIVITIES.map(a => `<li>${esc(a)}</li>`).join("")}</ul></section>`;
 }
 
 function show(view) {
   if (!VIEWS.includes(view)) view = "powershell";
   root.setAttribute("data-view", view);
-  if (view === "plain") renderPlain(); else renderTerminal(view);
+  if (view !== "plain") renderTerminal(view);
   document.querySelectorAll(".views button").forEach(b =>
     b.setAttribute("aria-pressed", String(b.dataset.view === view)));
+  themeColor.content = getComputedStyle(root).getPropertyValue("--page").trim();
   try { localStorage.setItem("view", view); } catch (e) { /* storage blocked */ }
 }
 
@@ -650,6 +672,7 @@ document.querySelector(".views").addEventListener("click", e => {
 window.addEventListener("hashchange", () => show(location.hash.slice(1)));
 
 renderSide();
+renderPlain();
 show(root.getAttribute("data-view"));
 </script>
 </body>
