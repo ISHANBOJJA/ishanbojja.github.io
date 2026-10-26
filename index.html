@@ -431,7 +431,7 @@ const SIDEBAR = {
   role: "Bioinformatics and machine learning",
   note: "Looking for research mentorship in computational biology.",
   links: [
-    // { text: "Resume (PDF)", href: "resume.pdf" }
+    { text: "Resume (PDF)", href: "resume.pdf", download: "Ishan-Bojja-Resume.pdf" }
   ]
 };
 
@@ -512,7 +512,7 @@ function renderSide() {
       `<p class="role">${esc(SIDEBAR.role)}</p>` +
     `</div>` +
     (SIDEBAR.note ? `<p class="note">${esc(SIDEBAR.note)}</p>` : "") +
-    `<ul class="links">${links.map(l => `<li><a href="${esc(l.href)}">${esc(l.text)}</a></li>`).join("")}</ul>`;
+    `<ul class="links">${links.map(l => `<li><a href="${esc(l.href)}"${l.download ? ` download="${esc(l.download)}"` : ""}>${esc(l.text)}</a></li>`).join("")}</ul>`;
 
   // A missing photo falls back to initials instead of a broken image icon.
   const img = side.querySelector(".photo img");
